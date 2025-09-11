@@ -1,0 +1,10 @@
+# Constants used throughout the game
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+CAR_SPEED = 5
+OBSTACLE_SPEED = 3
+INITIAL_ENERGY = 100
+BACKGROUND_COLOR = (255, 255, 255)  # White
+CAR_COLOR = (0, 0, 255)  # Blue
+OBSTACLE_COLOR = (255, 0, 0)  # Red
+FPS = 60

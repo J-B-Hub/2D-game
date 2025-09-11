@@ -1,0 +1,24 @@
+{
+  "road_distance": 1000,
+  "car_speed": 5,
+  "obstacle_types": [
+    "rock",
+    "tree",
+    "pothole"
+  ],
+  "initial_energy": 100,
+  "obstacle_insertion": true
+  ,
+  "obstacles": [
+    {"x": 500, "y": 225, "type": "rock"},
+    {"x": 800, "y": 325, "type": "tree"},
+    {"x": 1200, "y": 225, "type": "pothole"},
+    {"x": 1600, "y": 325, "type": "rock"},
+    {"x": 2000, "y": 225, "type": "tree"},
+    {"x": 2400, "y": 325, "type": "pothole"},
+    {"x": 2800, "y": 225, "type": "rock"},
+    {"x": 3200, "y": 325, "type": "tree"},
+    {"x": 3600, "y": 225, "type": "pothole"},
+    {"x": 4000, "y": 325, "type": "rock"}
+  ]
+}
