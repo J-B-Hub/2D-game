@@ -3,6 +3,7 @@ from .input_manager import InputManager
 from .game_state import GameState
 from .collision_detector import CollisionDetector
 from .game_renderer import GameRenderer
+from data_structures.avl_visualizer import AVLVisualizer
 
 class GameEngineModular:
     """Motor del juego modular - cada responsabilidad en su propia clase"""
@@ -18,9 +19,10 @@ class GameEngineModular:
         self.estado_juego = GameState(configuracion)
         self.collision_detector = CollisionDetector()
         self.game_renderer = GameRenderer(ventana)
+        self.avl_visualizer = AVLVisualizer()  # Instancia del visualizador, aquí creamos el visualizador del árbol
         
-        # Posición del carro
-        self.carro_x = 50  # Posición fija en pantalla
+        # Posición del carrito
+        self.carro_x = 50  # Posición fija en pantalla El carrito siempre arranca en el borde izquierdo
         self.carro_y = self.game_renderer.obtener_posicion_carril_superior()
     
     def actualizar(self):
@@ -40,7 +42,7 @@ class GameEngineModular:
     
     def manejar_entradas(self):
         """Maneja todas las entradas del jugador"""
-        # Controles de juego
+        # Controles de juego; pausa, reinicio, mostrar árbol, agregar obstáculo
         if self.input_manager.quiere_pausar():
             self.estado_juego.alternar_pausa()
         
@@ -112,10 +114,22 @@ class GameEngineModular:
         
         while self.estado_juego.juego_corriendo:
             # Manejar eventos de cierre
+            # Aquí revisamos si el jugador cerró la ventana
             evento_salir = self.ventana.handle_events()
             if evento_salir:
                 break
-            
+
+            # ---PARCE ESTO ES LO NUEVO: Captura eventos de teclado para mostrar el árbol---
+            # ---Aquí es donde capturamos la tecla T ---
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_t:
+                        # Muestra el árbol usando pyplot
+                        # Cuando el jugador presiona la T, mostramos el árbol AVL en una ventana aparte
+                        # Eso es lo que le gusta al profe, que se vea el arbolito bien bonito
+                        self.avl_visualizer.visualize(self.gestor_obstaculos.avl_root)
+            # ---------------------------------------------------------------
+
             # Actualizar lógica
             self.actualizar()
             
@@ -123,4 +137,5 @@ class GameEngineModular:
             self.dibujar()
             
             # Mantener 60 FPS
+            # Pa' que corra a 60 FPS, ni muy rápido ni muy lento
             reloj.tick(60)
