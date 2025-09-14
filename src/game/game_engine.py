@@ -50,7 +50,8 @@ class GameEngineModular:
             self.reiniciar_juego()
         
         if self.input_manager.quiere_mostrar_arbol():
-            self.estado_juego.alternar_mostrar_arbol()
+            print("¡Se presionó la T!")
+            self.game_renderer.ui_renderer.dibujar_visualizacion_arbol(self.gestor_obstaculos.arbol.root)
         
         if self.input_manager.quiere_agregar_obstaculo():
             self.gestor_obstaculos.crear_obstaculo_aleatorio(self.estado_juego.posicion_en_carretera)
@@ -124,10 +125,12 @@ class GameEngineModular:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_t:
+                        print("¡Se presionó la T!")
+                        print("Raíz del árbol:", self.gestor_obstaculos.avl_root)
                         # Muestra el árbol usando pyplot
                         # Cuando el jugador presiona la T, mostramos el árbol AVL en una ventana aparte
                         # Eso es lo que le gusta al profe, que se vea el arbolito bien bonito
-                        self.avl_visualizer.visualize(self.gestor_obstaculos.avl_root)
+                        self.ui_renderer.dibujar_visualizacion_arbol(self.gestor_obstaculos.avl_root)
             # ---------------------------------------------------------------
 
             # Actualizar lógica

@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
 
 class AVLVisualizer:
@@ -8,7 +10,7 @@ class AVLVisualizer:
     def visualize(self, root):
         """
         Dibuja el árbol AVL a partir de la raíz.
-        Cada nodo se dibuja como un círculo con su valor y detalles.
+        Cada nodo se dibuja como un círculo con los datos del obstáculo.
         """
         plt.figure(figsize=(10, 7))
         ax = plt.gca()
@@ -21,19 +23,18 @@ class AVLVisualizer:
             # Dibuja el nodo con borde más grueso y color diferente
             circle = plt.Circle((x, y), 0.6, color='#90caf9', ec='#1565c0', lw=2, zorder=2)
             ax.add_artist(circle)
-            # Muestra información extra si existe
-            texto = str(node.value)
-            if hasattr(node, 'tipo'):
-                texto += f"\n{node.tipo}"
-            if hasattr(node, 'x') and hasattr(node, 'y'):
-                texto += f"\n({node.x},{node.y})"
+            # Muestra información del obstáculo si existe
+            if hasattr(node, 'obstacle') and node.obstacle is not None:
+                texto = f"({node.obstacle.x}, {node.obstacle.y})\n{getattr(node.obstacle, 'obstacle_type', '')}"
+            else:
+                texto = "Sin obstáculo"
             ax.text(x, y, texto, fontsize=13, ha='center', va='center', color='#0d47a1', zorder=3)
             # Dibuja la rama izquierda
-            if node.left:
+            if hasattr(node, 'left') and node.left:
                 ax.plot([x, x - dx], [y - 0.6, y - 2 + 0.6], color='#8d6e63', lw=2, zorder=1)
                 dibujar_nodo(node.left, x - dx, y - 2, dx / 1.5)
             # Dibuja la rama derecha
-            if node.right:
+            if hasattr(node, 'right') and node.right:
                 ax.plot([x, x + dx], [y - 0.6, y - 2 + 0.6], color='#8d6e63', lw=2, zorder=1)
                 dibujar_nodo(node.right, x + dx, y - 2, dx / 1.5)
 

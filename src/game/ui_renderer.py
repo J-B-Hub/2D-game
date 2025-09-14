@@ -1,5 +1,5 @@
 import pygame
-
+from data_structures.avl_visualizer import AVLVisualizer
 class UIRenderer:
     """Clase especializada en dibujar la interfaz de usuario"""
     
@@ -89,31 +89,40 @@ class UIRenderer:
         texto_reiniciar = fuente_pequeña.render("Presiona R para reiniciar", True, (255, 255, 255))
         reiniciar_rect = texto_reiniciar.get_rect(center=(self.ventana_width//2, self.ventana_height//2 + 40))
         screen.blit(texto_reiniciar, reiniciar_rect)
+
+    def dibujar_visualizacion_arbol(self, avl_root):
+        from data_structures.avl_visualizer import AVLVisualizer
+        visualizador = AVLVisualizer()
+        visualizador.visualize(avl_root)
     
-    def dibujar_visualizacion_arbol(self, screen, obstaculos_ordenados):
-        """Dibuja una visualización simple del árbol AVL"""
-        # Overlay semi-transparente
-        overlay = pygame.Surface((self.ventana_width, self.ventana_height))
-        overlay.set_alpha(200)
-        overlay.fill((50, 50, 50))
-        screen.blit(overlay, (0, 0))
+
+    
+    
+    # def dibujar_visualizacion_arbol(self, screen, obstaculos_ordenados):
+    #     """Dibuja una visualización simple del árbol AVL"""
+    #     # Overlay semi-transparente
+    #     overlay = pygame.Surface((self.ventana_width, self.ventana_height))
+    #     overlay.set_alpha(200)
+    #     overlay.fill((50, 50, 50))
+    #     screen.blit(overlay, (0, 0))
         
-        # Título
-        fuente_titulo = pygame.font.Font(None, 48)
-        titulo = fuente_titulo.render("Visualización del Árbol AVL", True, (255, 255, 255))
-        titulo_rect = titulo.get_rect(center=(self.ventana_width//2, 30))
-        screen.blit(titulo, titulo_rect)
+    #     # Título
+    #     fuente_titulo = pygame.font.Font(None, 48)
+    #     titulo = fuente_titulo.render("Visualización del Árbol AVL", True, (255, 255, 255))
+    #     titulo_rect = titulo.get_rect(center=(self.ventana_width//2, 30))
+    #     screen.blit(titulo, titulo_rect)
         
-        # Dibujar lista simple de obstáculos
-        fuente = pygame.font.Font(None, 24)
-        y_actual = 80
+    #     # Dibujar lista simple de obstáculos
+    #     fuente = pygame.font.Font(None, 24)
+    #     y_actual = 80
         
-        for i, obstaculo in enumerate(obstaculos_ordenados[:15]):  # Máximo 15 para que quepa en pantalla
-            texto = f"{i+1}. Posición X: {int(obstaculo.x)}, Y: {int(obstaculo.y)}, Tipo: {obstaculo.obstacle_type}"
-            superficie_texto = fuente.render(texto, True, (255, 255, 255))
-            screen.blit(superficie_texto, (50, y_actual))
-            y_actual += 30
+    #     for i, obstaculo in enumerate(obstaculos_ordenados[:15]):  # Máximo 15 para que quepa en pantalla
+    #         texto = f"{i+1}. Posición X: {int(obstaculo.x)}, Y: {int(obstaculo.y)}, Tipo: {obstaculo.obstacle_type}"
+    #         superficie_texto = fuente.render(texto, True, (255, 255, 255))
+    #         screen.blit(superficie_texto, (50, y_actual))
+    #         y_actual += 30
         
-        # Instrucciones
-        instruccion = fuente.render("Presiona T para ocultar", True, (255, 255, 0))
-        screen.blit(instruccion, (50, self.ventana_height - 50))
+    #     # Instrucciones
+    #     instruccion = fuente.render("Presiona T para ocultar", True, (255, 255, 0))
+    #     screen.blit(instruccion, (50, self.ventana_height - 50))
+

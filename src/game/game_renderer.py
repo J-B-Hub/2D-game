@@ -14,33 +14,31 @@ class GameRenderer:
         """Dibuja todos los elementos del juego"""
         # Limpiar pantalla
         self.ventana.clear()
-        
+    
         # Dibujar carretera
         self.road_renderer.dibujar_carretera(self.ventana.screen, posicion_en_carretera)
-        
+    
         # Dibujar carro
         self.dibujar_carro(carro_x, carro_y)
-        
+    
         # Dibujar obstáculos
         self.dibujar_obstaculos(obstaculos_visibles, posicion_en_carretera, carro_x)
-        
+    
         # Dibujar interfaz
         self.ui_renderer.dibujar_barra_energia(self.ventana.screen, estado_juego.energia, estado_juego.energia_maxima)
         self.ui_renderer.dibujar_estadisticas(self.ventana.screen, estado_juego.puntuacion, 
-                                             estado_juego.obstaculos_evitados, estado_juego.energia)
+                                         estado_juego.obstaculos_evitados, estado_juego.energia)
         self.ui_renderer.dibujar_instrucciones(self.ventana.screen)
-        
-        # Dibujar árbol si está activado
-        if estado_juego.mostrar_arbol:
-            obstaculos_ordenados = gestor_obstaculos.arbol.obtener_lista_ordenada()
-            self.ui_renderer.dibujar_visualizacion_arbol(self.ventana.screen, obstaculos_ordenados)
-        
+    
+        # Ya NO se dibuja el árbol AVL aquí, solo se dibuja cuando el usuario presiona T en el motor principal.
+        # Elimina la llamada a dibujar_visualizacion_arbol aquí para evitar errores.
+    
         # Dibujar pantallas especiales
         if estado_juego.juego_pausado:
             self.ui_renderer.dibujar_pantalla_pausa(self.ventana.screen)
         elif estado_juego.juego_terminado:
             self.ui_renderer.dibujar_pantalla_game_over(self.ventana.screen, estado_juego.puntuacion)
-        
+    
         # Actualizar pantalla
         self.ventana.update()
     
