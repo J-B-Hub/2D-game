@@ -102,4 +102,41 @@ src/
 
 ---
 
-##
+## Entorno Virtual (venv)
+
+1. **¿Qué es venv?**
+   - Es una herramienta incluida en Python que permite crear un entorno aislado para instalar dependencias específicas del proyecto, evitando conflictos con otros proyectos o con la instalación global de Python.
+
+2. **Creación del entorno virtual:**
+   - Ejecuta el siguiente comando en la terminal:
+     ```bash
+     python3 -m venv venv
+     ```
+   - Esto generará una carpeta llamada [venv](http://_vscodecontentref_/0) con los archivos necesarios para el entorno virtual.
+
+3. **Activación del entorno virtual:**
+   - En Linux/macOS:
+     ```bash
+     source venv/bin/activate
+     ```
+   - En Windows:
+     ```cmd
+     venv\Scripts\activate
+     ```
+
+4. **Instalación de dependencias:**
+   - Una vez activado el entorno, instala las dependencias del proyecto con:
+     ```bash
+     pip install -r requirements.txt
+     ```
+
+5. **Desactivación del entorno virtual:**
+   - Para salir del entorno virtual, ejecuta:
+     ```bash
+     deactivate
+     ```
+
+6. **Recomendaciones:**
+   - Mantén el entorno virtual activado mientras trabajas en el proyecto.
+   - No subas la carpeta [venv](http://_vscodecontentref_/1) al repositorio (debe estar en [.gitignore](http://_vscodecontentref_/2)).
+   - Actualiza el archivo `requirements.txt` si agregas nuevas dependencias.
