@@ -68,7 +68,7 @@ class UIRenderer:
             "↑/↓ o W/S: Carril",
             "ENTER: Salto", 
             "SPACE: Obstáculo (siempre)",
-            "T: AVL vivo (siempre)",
+            "T: AVL (siempre)",
             "B: Balance AVL (siempre)",
             "P: Pausa/Despausar",
             "R: Reiniciar"
@@ -106,7 +106,6 @@ class UIRenderer:
             "SPACE: Agregar obstáculo",
             "T: Mostrar/ocultar árbol AVL",
             "B: Verificar balance del árbol", 
-            "D: Información debug",
             "R: Reiniciar juego"
         ]
         

@@ -70,7 +70,7 @@ def mostrar_pantalla_inicio(ventana):
         
         # Dibujar subtítulo
         fuente_subtitulo = pygame.font.Font(None, 32)
-        texto_subtitulo = fuente_subtitulo.render("Versión Modular - Arquitectura Limpia", True, (200, 200, 200))
+        texto_subtitulo = fuente_subtitulo.render("2D Game", True, (200, 200, 200))
         subtitulo_rect = texto_subtitulo.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 60))
         ventana.screen.blit(texto_subtitulo, subtitulo_rect)
         
