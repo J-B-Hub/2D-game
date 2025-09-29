@@ -28,6 +28,10 @@ class GameEngineModular:
         # Posición del carrito
         self.carro_x = 50  # Posición fija en pantalla El carrito siempre arranca en el borde izquierdo
         self.carro_y = self.game_renderer.obtener_posicion_carril_superior()
+        
+        # Meta del juego
+        self.distancia_meta = configuracion.get('meta_distance', 10000)  # Distancia para ganar (valor predeterminado)
+        self.victoria = False  # Nuevo estado para indicar que se ha ganado el juego
     
     def actualizar(self):
         """Actualiza la lógica del juego - versión simplificada"""
@@ -93,6 +97,12 @@ class GameEngineModular:
         # Mover el carro hacia adelante
         self.estado_juego.actualizar_movimiento()
         
+        # Verificar si se alcanzó la meta
+        if self.estado_juego.posicion_en_carretera >= self.distancia_meta:
+            self.victoria = True
+            self.estado_juego.juego_pausado = True  # Pausar el juego al ganar
+            return
+        
         # Actualizar salto
         ahora = time.time()
         dt = ahora - self._ultimo_tiempo
@@ -118,6 +128,10 @@ class GameEngineModular:
     
     def dibujar(self):
         """Dibuja todo el juego"""
+        if self.victoria:
+            self.mostrar_pantalla_victoria()
+            return
+            
         # Obtener obstáculos visibles
         obstaculos_visibles = self.gestor_obstaculos.obtener_obstaculos_visibles(
             self.estado_juego.posicion_en_carretera
@@ -130,6 +144,90 @@ class GameEngineModular:
             obstaculos_visibles, self.estado_juego.posicion_en_carretera,
             self.gestor_obstaculos, mostrar_avl=self.modo_avl_en_vivo
         )
+        
+        # Mostrar información de la meta
+        self.dibujar_info_meta()
+    
+    def dibujar_info_meta(self):
+        """Muestra información sobre la meta y el progreso"""
+        progreso = min(self.estado_juego.posicion_en_carretera / self.distancia_meta, 1.0)
+        porcentaje = int(progreso * 100)
+        
+        # Dibujar barra de progreso
+        ancho_barra = 200
+        alto_barra = 20
+        x_barra = self.ventana.width - ancho_barra - 20
+        y_barra = 20
+        
+        # Fondo de la barra
+        pygame.draw.rect(self.ventana.screen, (50, 50, 50), (x_barra, y_barra, ancho_barra, alto_barra))
+        # Progreso
+        pygame.draw.rect(self.ventana.screen, (0, 255, 0), 
+                        (x_barra, y_barra, int(ancho_barra * progreso), alto_barra))
+        
+        # Texto de progreso
+        fuente = pygame.font.Font(None, 24)
+        texto = fuente.render(f"Meta: {porcentaje}%", True, (255, 255, 255))
+        texto_rect = texto.get_rect(midleft=(x_barra - 10, y_barra + alto_barra//2))
+        self.ventana.screen.blit(texto, texto_rect)
+        
+        # Distancia restante
+        distancia_restante = max(0, self.distancia_meta - self.estado_juego.posicion_en_carretera)
+        texto_distancia = fuente.render(f"Faltan: {distancia_restante:.0f} m", True, (255, 255, 255))
+        texto_dist_rect = texto_distancia.get_rect(topleft=(x_barra, y_barra + alto_barra + 5))
+        self.ventana.screen.blit(texto_distancia, texto_dist_rect)
+    
+    def mostrar_pantalla_victoria(self):
+        """Muestra la pantalla de victoria"""
+        # Limpiar pantalla
+        self.ventana.clear()
+        
+        # Dibujar título
+        fuente_titulo = pygame.font.Font(None, 64)
+        texto_titulo = fuente_titulo.render("¡VICTORIA!", True, (255, 255, 0))
+        titulo_rect = texto_titulo.get_rect(center=(self.ventana.width//2, self.ventana.height//2 - 100))
+        self.ventana.screen.blit(texto_titulo, titulo_rect)
+        
+        # Dibujar estadísticas
+        fuente_stats = pygame.font.Font(None, 32)
+        
+        texto_distancia = fuente_stats.render(
+            f"Distancia recorrida: {self.estado_juego.posicion_en_carretera:.0f} m", 
+            True, (200, 200, 200))
+        dist_rect = texto_distancia.get_rect(center=(self.ventana.width//2, self.ventana.height//2))
+        self.ventana.screen.blit(texto_distancia, dist_rect)
+        
+        texto_saltos = fuente_stats.render(
+            f"Saltos realizados: {self.estado_juego.saltos_realizados}", 
+            True, (200, 200, 200))
+        saltos_rect = texto_saltos.get_rect(center=(self.ventana.width//2, self.ventana.height//2 + 40))
+        self.ventana.screen.blit(texto_saltos, saltos_rect)
+        
+        # Revisar si el atributo existe antes de mostrarlo
+        if hasattr(self.estado_juego, 'colisiones_evitadas'):
+            texto_colisiones = fuente_stats.render(
+                f"Colisiones evitadas: {self.estado_juego.colisiones_evitadas}", 
+                True, (200, 200, 200))
+            colisiones_rect = texto_colisiones.get_rect(center=(self.ventana.width//2, self.ventana.height//2 + 80))
+            self.ventana.screen.blit(texto_colisiones, colisiones_rect)
+        
+        # Dibujar instrucciones
+        fuente_instr = pygame.font.Font(None, 28)
+        texto_instr = fuente_instr.render("Presiona R para reiniciar - ESC para salir", True, (150, 150, 150))
+        instr_rect = texto_instr.get_rect(center=(self.ventana.width//2, self.ventana.height//2 + 140))
+        self.ventana.screen.blit(texto_instr, instr_rect)
+        
+        # Actualizar pantalla
+        self.ventana.update()
+        
+        # Verificar si se quiere reiniciar
+        if self.input_manager.quiere_reiniciar():
+            self.reiniciar_juego()
+        
+        # Verificar si se quiere salir
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            self.estado_juego.juego_corriendo = False
     
     def reiniciar_juego(self):
         """Reinicia el juego completo"""
@@ -142,6 +240,9 @@ class GameEngineModular:
         
         # Reiniciar obstáculos
         self.gestor_obstaculos.reiniciar_obstaculos()
+        
+        # Reiniciar estado de victoria
+        self.victoria = False
     
     def ejecutar(self):
         """Bucle principal del juego - simplificado"""

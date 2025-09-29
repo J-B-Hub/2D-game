@@ -24,5 +24,6 @@
     {"x": 3600, "y": 225, "type": "pothole"},
     {"x": 3900, "y": 225, "type": "hole"},
     {"x": 4000, "y": 325, "type": "rock"}
-  ]
+  ],
+  "meta_distance": 6000
 }

@@ -10,7 +10,7 @@ def main():
     """Función principal del juego - versión modular"""
     # Inicializar Pygame
     pygame.init()
-    print("Pygame inicializado")
+    print("Pygame inicializado") 
     
     # Cargar configuración desde JSON
     configuracion = load_config('config/game_config.json')
@@ -38,6 +38,10 @@ def main():
     obstaculos_iniciales = configuracion.get('obstacles', [])
     gestor_obstaculos.cargar_obstaculos_iniciales(obstaculos_iniciales)
     print(f"Cargados {len(obstaculos_iniciales)} obstáculos iniciales")
+    
+    # Verificar configuración de la meta
+    distancia_meta = configuracion.get('meta_distance', 6000)
+    print(f"Meta establecida a {distancia_meta} metros")
     
     # Ejecutar el juego
     print("Iniciando juego modular...")
