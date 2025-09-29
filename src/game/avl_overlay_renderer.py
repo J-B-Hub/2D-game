@@ -15,6 +15,9 @@ class AVLMiniRenderer:
         self.font_tiny = pygame.font.Font(None, 14)
         self.bg_cache = None
         self._cache_size = (width, height)
+                # Configuración del panel de recorridos
+        self.traversal_width = 350
+        self.traversal_height = 160
 
     # -------- Utilidades internas --------
     def _calc_heights(self, node):
@@ -46,6 +49,37 @@ class AVLMiniRenderer:
         inorder(root, 0)
         return nodes
 
+    def _get_traversals(self, root):
+        """Calcula los tres recorridos del árbol AVL."""
+        preorder = []
+        inorder = []
+        postorder = []
+        
+        def preorder_traversal(node):
+            if node:
+                preorder.append(int(getattr(node, 'x_position', 0)))
+                preorder_traversal(node.left)
+                preorder_traversal(node.right)
+        
+        def inorder_traversal(node):
+            if node:
+                inorder_traversal(node.left)
+                inorder.append(int(getattr(node, 'x_position', 0)))
+                inorder_traversal(node.right)
+        
+        def postorder_traversal(node):
+            if node:
+                postorder_traversal(node.left)
+                postorder_traversal(node.right)
+                postorder.append(int(getattr(node, 'x_position', 0)))
+        
+        if root:
+            preorder_traversal(root)
+            inorder_traversal(root)
+            postorder_traversal(root)
+        
+        return preorder, inorder, postorder
+
     def _draw_panel_background(self):
         """Genera (o reutiliza) fondo degradado semi-transparente con borde."""
         if self.bg_cache is not None:
@@ -64,12 +98,88 @@ class AVLMiniRenderer:
         self.bg_cache = surf
         return surf
 
+    def _draw_traversal_background(self):
+        """Genera fondo para el panel de recorridos."""
+        surf = pygame.Surface((self.traversal_width, self.traversal_height), pygame.SRCALPHA)
+        for y in range(self.traversal_height):
+            t = y / max(1, self.traversal_height - 1)
+            # Gradiente verde oscuro -> gris verdoso
+            r = int(20 + 30 * t)
+            g = int(40 + 70 * t)
+            b = int(20 + 40 * t)
+            a = int(180)  # semi-transparente
+            pygame.draw.line(surf, (r, g, b, a), (0, y), (self.traversal_width, y))
+        # Borde
+        pygame.draw.rect(surf, (180, 230, 180, 200), surf.get_rect(), 2, border_radius=10)
+        return surf
+
+    def _draw_traversals(self, screen, root):
+        """Dibuja los recorridos del árbol en el lado izquierdo."""
+        if not root:
+            return
+            
+        # Posición del panel de recorridos (lado izquierdo del árbol)
+        panel_x = self.screen_width - self.width - self.traversal_width - (self.margin * 2)
+        panel_y = self.screen_height - self.height - self.margin
+        
+        # Fondo
+        bg = self._draw_traversal_background()
+        screen.blit(bg, (panel_x, panel_y))
+        
+        # Obtener recorridos
+        preorder, inorder, postorder = self._get_traversals(root)
+        
+        # Título con fuente más grande
+        titulo = self.font_small.render("Recorridos AVL", True, (220, 255, 220))
+        screen.blit(titulo, (panel_x + 15, panel_y + 12))
+        
+        # Configuración de texto con fuentes más grandes
+        line_height = 28
+        start_y = panel_y + 45
+        max_chars = 45  # Máximo de caracteres por línea (más caracteres por línea más ancha)
+        
+        # Función auxiliar para truncar texto si es muy largo
+        def format_traversal(traversal_list):
+            text = ", ".join(map(str, traversal_list))
+            if len(text) > max_chars:
+                text = text[:max_chars-3] + "..."
+            return text
+        
+        # Pre-orden con fuente más grande
+        preorder_text = format_traversal(preorder)
+        pre_label = self.font_small.render("Pre-orden:", True, (255, 200, 200))
+        pre_values = self.font_small.render(preorder_text, True, (255, 255, 255))
+        screen.blit(pre_label, (panel_x + 15, start_y))
+        screen.blit(pre_values, (panel_x + 15, start_y + 18))
+        
+        # In-orden con fuente más grande
+        inorder_text = format_traversal(inorder)
+        in_label = self.font_small.render("In-orden:", True, (200, 255, 200))
+        in_values = self.font_small.render(inorder_text, True, (255, 255, 255))
+        screen.blit(in_label, (panel_x + 15, start_y + line_height))
+        screen.blit(in_values, (panel_x + 15, start_y + line_height + 18))
+        
+        # Post-orden con fuente más grande
+        postorder_text = format_traversal(postorder)
+        post_label = self.font_small.render("Post-orden:", True, (200, 200, 255))
+        post_values = self.font_small.render(postorder_text, True, (255, 255, 255))
+        screen.blit(post_label, (panel_x + 15, start_y + line_height * 2))
+        screen.blit(post_values, (panel_x + 15, start_y + line_height * 2 + 18))
+        
+        # Información adicional
+        info_text = f"Total nodos: {len(preorder)}"
+        info_render = self.font_small.render(info_text, True, (180, 255, 180))
+        screen.blit(info_render, (panel_x + 15, panel_y + self.traversal_height - 25))
+
     def dibujar(self, screen, root):
         panel_x = self.screen_width - self.width - self.margin
         panel_y = self.screen_height - self.height - self.margin
         panel_rect = pygame.Rect(panel_x, panel_y, self.width, self.height)
 
-        # Fondo
+        # Dibujar primero los recorridos (al lado izquierdo del panel principal)
+        self._draw_traversals(screen, root)
+
+        # Fondo del panel principal
         bg = self._draw_panel_background()
         screen.blit(bg, (panel_x, panel_y))
 
