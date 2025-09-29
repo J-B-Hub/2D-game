@@ -19,12 +19,28 @@ class CollisionDetector:
             rectangulo_obstaculo = pygame.Rect(x_pantalla, obstaculo.y, obstaculo.width, obstaculo.height)
             
             # Verificar colisión
-            # Si salta y pasa por encima (criterio simple: parte baja carro < top obstáculo)
-            # El carro 'salta sobre' el obstáculo si la elevación hace que su borde inferior quede por encima del top del obstáculo + margen
-            if esta_saltando and (y_final + recticulo_altura) < (obstaculo.y + obstaculo.height * 0.4):
-                continue
-            if rectangulo_carro.colliderect(rectangulo_obstaculo):
-                estado_juego.agregar_obstaculo_golpeado(obstaculo)
+            colision_detectada = False
+            
+            # Para obstáculos tipo 'hole', solo se pueden evitar saltando suficientemente alto
+            if obstaculo.obstacle_type == 'hole':
+                # Los holes requieren salto obligatorio - no se pueden evitar por carriles
+                if esta_saltando and (y_final + recticulo_altura) < (obstaculo.y + obstaculo.height * 0.3):
+                    pass  # Salto exitoso sobre el hole
+                else:
+                    # Si no está saltando lo suficiente, verificar colisión con hole
+                    if rectangulo_carro.colliderect(rectangulo_obstaculo):
+                        colision_detectada = True
+            else:
+                # Lógica normal para otros obstáculos
+                if esta_saltando and (y_final + recticulo_altura) < (obstaculo.y + obstaculo.height * 0.4):
+                    pass  # Salto exitoso sobre obstáculo normal
+                else:
+                    if rectangulo_carro.colliderect(rectangulo_obstaculo):
+                        colision_detectada = True
+            
+            # Procesar resultado de la colisión
+            if colision_detectada:
+                estado_juego.agregar_obstaculo_golpeado(obstaculo, esta_saltando)
             else:
                 # Si pasó el obstáculo sin chocar, contar como evitado
                 if (obstaculo.x < posicion_en_carretera and 

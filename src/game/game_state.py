@@ -64,12 +64,16 @@ class GameState:
             self.energia = 0
             self.juego_terminado = True
     
-    def agregar_obstaculo_golpeado(self, obstaculo):
+    def agregar_obstaculo_golpeado(self, obstaculo, esta_saltando=False):
         """Registra un obstáculo como golpeado"""
         if obstaculo not in self.obstaculos_golpeados:
             self.obstaculos_golpeados.add(obstaculo)
-            self.reducir_energia()
-            print(f"¡Colisión con {obstaculo.obstacle_type}! Energía: {self.energia}")
+            # Solo reducir energía si no está saltando
+            if not esta_saltando:
+                self.reducir_energia()
+                print(f"¡Colisión con {obstaculo.obstacle_type}! Energía: {self.energia}")
+            else:
+                print(f"¡Colisión durante salto con {obstaculo.obstacle_type}! Sin pérdida de energía. Energía: {self.energia}")
     
     def contar_obstaculo_evitado(self):
         """Aumenta el contador de obstáculos evitados"""

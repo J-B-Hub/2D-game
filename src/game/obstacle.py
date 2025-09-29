@@ -13,6 +13,11 @@ class Obstacle:
             self.width, self.height = 60, 60
         elif obstacle_type == 'pothole':
             self.width, self.height = 70, 40
+        elif obstacle_type == 'hole':
+            # Hole ocupa ambos carriles - desde Y=225 hasta Y=325
+            self.width, self.height = 200, 100  # Altura de 100 para cubrir ambos carriles
+            # Posición Y fija para que empiece en el carril superior
+            self.y = 225  # Empieza en el carril superior y se extiende hasta el inferior
         else:
             self.width, self.height = 55, 55
         self.sprite = load_for_type(obstacle_type, size=(self.width, self.height))

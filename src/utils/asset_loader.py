@@ -8,7 +8,8 @@ DEFAULT_MAP = {
     'car': 'car.png',
     'rock': 'rock.png',
     'tree': 'tree.png',
-    'pothole': 'pothole.png'
+    'pothole': 'pothole.png',
+    'hole': 'hole.png'
 }
 
 ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'assets')

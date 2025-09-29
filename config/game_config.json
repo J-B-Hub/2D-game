@@ -4,7 +4,8 @@
   "obstacle_types": [
     "rock",
     "tree",
-    "pothole"
+    "pothole",
+    "hole"
   ],
   "initial_energy": 100,
   "obstacle_insertion": true
@@ -13,12 +14,15 @@
     {"x": 500, "y": 225, "type": "rock"},
     {"x": 800, "y": 325, "type": "tree"},
     {"x": 1200, "y": 225, "type": "pothole"},
+    {"x": 1500, "y": 225, "type": "hole"},
     {"x": 1600, "y": 325, "type": "rock"},
     {"x": 2000, "y": 225, "type": "tree"},
     {"x": 2400, "y": 325, "type": "pothole"},
+    {"x": 2700, "y": 225, "type": "hole"},
     {"x": 2800, "y": 225, "type": "rock"},
     {"x": 3200, "y": 325, "type": "tree"},
     {"x": 3600, "y": 225, "type": "pothole"},
+    {"x": 3900, "y": 225, "type": "hole"},
     {"x": 4000, "y": 325, "type": "rock"}
   ]
 }

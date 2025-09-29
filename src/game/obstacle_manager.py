@@ -50,11 +50,16 @@ class ObstacleManager:
     
     def crear_obstaculo_aleatorio(self, posicion_carro):
         """Crea un obstáculo aleatorio adelante del carro"""
-        tipos_obstaculos = ["rock", "tree", "pothole"]
+        tipos_obstaculos = ["rock", "tree", "pothole", "hole"]
         carriles_y = [225, 325]  # Posiciones Y de los carriles
         
         x_nuevo = posicion_carro + random.randint(400, 800)
-        y_nuevo = random.choice(carriles_y)
         tipo_nuevo = random.choice(tipos_obstaculos)
+        
+        # Los holes tienen posición Y fija (empezando en carril superior)
+        if tipo_nuevo == 'hole':
+            y_nuevo = 225  # Posición Y fija para holes (carril superior, se extiende hacia abajo)
+        else:
+            y_nuevo = random.choice(carriles_y)
         
         self.agregar_obstaculo_nuevo(x_nuevo, y_nuevo, tipo_nuevo)
