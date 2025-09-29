@@ -46,7 +46,7 @@ class GameEngineModular:
     
     def manejar_entradas(self):
         """Maneja todas las entradas del jugador"""
-        # Controles de juego; pausa, reinicio, mostrar árbol, agregar obstáculo
+        # Controles que funcionan SIEMPRE (incluso en pausa)
         if self.input_manager.quiere_pausar():
             self.estado_juego.alternar_pausa()
         
@@ -57,13 +57,13 @@ class GameEngineModular:
             self.modo_avl_en_vivo = not self.modo_avl_en_vivo
             print("AVL overlay", "ON" if self.modo_avl_en_vivo else "OFF")
         
+        # AGREGAR OBSTÁCULOS FUNCIONA INCLUSO EN PAUSA
         if self.input_manager.quiere_agregar_obstaculo():
             self.gestor_obstaculos.crear_obstaculo_aleatorio(self.estado_juego.posicion_en_carretera)
+            estado_texto = "PAUSADO" if self.estado_juego.juego_pausado else "ACTIVO"
+            print(f"Obstáculo agregado mientras el juego está {estado_texto}")
 
-        if self.input_manager.quiere_saltar():
-            self.carro.iniciar_salto(self.carro_y)
-            self.estado_juego.saltos_realizados += 1
-
+        # DEBUG Y VERIFICACIÓN FUNCIONAN SIEMPRE
         if self.input_manager.quiere_verificar_balance():
             self.verificar_balance_avl()
 
@@ -73,10 +73,15 @@ class GameEngineModular:
                 if not n: return 0
                 return 1 + _contar(n.left) + _contar(n.right)
             total = _contar(self.gestor_obstaculos.arbol.root)
-            print(f"[DEBUG] AVL activo={self.modo_avl_en_vivo} nodos={total}")
+            estado_texto = "PAUSADO" if self.estado_juego.juego_pausado else "ACTIVO"
+            print(f"[DEBUG] Juego {estado_texto} - AVL activo={self.modo_avl_en_vivo} nodos={total}")
         
-        # Movimiento del carro (solo si el juego está activo)
+        # Controles de juego (solo si el juego está ACTIVO)
         if self.estado_juego.esta_activo():
+            if self.input_manager.quiere_saltar():
+                self.carro.iniciar_salto(self.carro_y)
+                self.estado_juego.saltos_realizados += 1
+
             if self.input_manager.quiere_mover_arriba():
                 self.carro_y = self.game_renderer.obtener_posicion_carril_superior()
             

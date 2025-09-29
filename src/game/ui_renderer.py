@@ -59,26 +59,30 @@ class UIRenderer:
     def dibujar_instrucciones(self, screen):
         """Panel lateral de instrucciones con iconos ASCII"""
         fuente_peq = pygame.font.Font(None, 22)
-        panel_w = 250
-        panel_h = 150
+        panel_w = 280
+        panel_h = 160
         panel = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
         panel.fill((15, 20, 35, 150))
         screen.blit(panel, (self.ventana_width - panel_w - 16, 16))
         instrucciones = [
             "↑/↓ o W/S: Carril",
-            "ENTER: Salto",
-            "SPACE: Obstáculo",
-            "T: AVL vivo",
-            "B: Balance AVL",
+            "ENTER: Salto", 
+            "SPACE: Obstáculo (siempre)",
+            "T: AVL vivo (siempre)",
+            "B: Balance AVL (siempre)",
+            "P: Pausa/Despausar",
             "R: Reiniciar"
         ]
         for i, instr in enumerate(instrucciones):
-            col = (210, 210, 230)
+            if "siempre" in instr:
+                col = (180, 255, 180)  # Verde claro para controles que funcionan siempre
+            else:
+                col = (210, 210, 230)  # Color normal
             surf = fuente_peq.render(instr, True, col)
-            screen.blit(surf, (self.ventana_width - panel_w, 28 + i*22))
+            screen.blit(surf, (self.ventana_width - panel_w + 8, 28 + i*22))
     
     def dibujar_pantalla_pausa(self, screen):
-        """Dibuja la pantalla de pausa"""
+        """Dibuja la pantalla de pausa con controles disponibles"""
         overlay = pygame.Surface((self.ventana_width, self.ventana_height))
         overlay.set_alpha(150)
         overlay.fill((0, 0, 0))
@@ -86,13 +90,40 @@ class UIRenderer:
         
         fuente_grande = pygame.font.Font(None, 72)
         texto_pausa = fuente_grande.render("PAUSADO", True, (255, 255, 255))
-        pausa_rect = texto_pausa.get_rect(center=(self.ventana_width//2, self.ventana_height//2 - 50))
+        pausa_rect = texto_pausa.get_rect(center=(self.ventana_width//2, self.ventana_height//2 - 80))
         screen.blit(texto_pausa, pausa_rect)
         
-        fuente_pequeña = pygame.font.Font(None, 36)
-        texto_continuar = fuente_pequeña.render("Presiona P para continuar", True, (255, 255, 255))
-        continuar_rect = texto_continuar.get_rect(center=(self.ventana_width//2, self.ventana_height//2 + 20))
+        fuente_mediana = pygame.font.Font(None, 32)
+        texto_continuar = fuente_mediana.render("Presiona P para continuar", True, (255, 255, 255))
+        continuar_rect = texto_continuar.get_rect(center=(self.ventana_width//2, self.ventana_height//2 - 20))
         screen.blit(texto_continuar, continuar_rect)
+        
+        # Mostrar controles disponibles durante la pausa
+        fuente_pequeña = pygame.font.Font(None, 24)
+        controles_disponibles = [
+            "Controles disponibles durante la pausa:",
+            "",
+            "SPACE: Agregar obstáculo",
+            "T: Mostrar/ocultar árbol AVL",
+            "B: Verificar balance del árbol", 
+            "D: Información debug",
+            "R: Reiniciar juego"
+        ]
+        
+        y_start = self.ventana_height//2 + 30
+        for i, texto in enumerate(controles_disponibles):
+            if i == 0:  # Título
+                color = (255, 255, 120)
+                fuente_titulo = pygame.font.Font(None, 26)
+                surf = fuente_titulo.render(texto, True, color)
+            elif texto == "":  # Línea vacía
+                continue
+            else:  # Controles
+                color = (200, 200, 255)
+                surf = fuente_pequeña.render(texto, True, color)
+            
+            texto_rect = surf.get_rect(center=(self.ventana_width//2, y_start + i*25))
+            screen.blit(surf, texto_rect)
     
     def dibujar_pantalla_game_over(self, screen, puntuacion_final):
         """Dibuja la pantalla de game over"""
@@ -120,35 +151,3 @@ class UIRenderer:
         from data_structures.avl_visualizer import AVLVisualizer
         visualizador = AVLVisualizer()
         visualizador.visualize(avl_root)
-    
-
-    
-    
-    # def dibujar_visualizacion_arbol(self, screen, obstaculos_ordenados):
-    #     """Dibuja una visualización simple del árbol AVL"""
-    #     # Overlay semi-transparente
-    #     overlay = pygame.Surface((self.ventana_width, self.ventana_height))
-    #     overlay.set_alpha(200)
-    #     overlay.fill((50, 50, 50))
-    #     screen.blit(overlay, (0, 0))
-        
-    #     # Título
-    #     fuente_titulo = pygame.font.Font(None, 48)
-    #     titulo = fuente_titulo.render("Visualización del Árbol AVL", True, (255, 255, 255))
-    #     titulo_rect = titulo.get_rect(center=(self.ventana_width//2, 30))
-    #     screen.blit(titulo, titulo_rect)
-        
-    #     # Dibujar lista simple de obstáculos
-    #     fuente = pygame.font.Font(None, 24)
-    #     y_actual = 80
-        
-    #     for i, obstaculo in enumerate(obstaculos_ordenados[:15]):  # Máximo 15 para que quepa en pantalla
-    #         texto = f"{i+1}. Posición X: {int(obstaculo.x)}, Y: {int(obstaculo.y)}, Tipo: {obstaculo.obstacle_type}"
-    #         superficie_texto = fuente.render(texto, True, (255, 255, 255))
-    #         screen.blit(superficie_texto, (50, y_actual))
-    #         y_actual += 30
-        
-    #     # Instrucciones
-    #     instruccion = fuente.render("Presiona T para ocultar", True, (255, 255, 0))
-    #     screen.blit(instruccion, (50, self.ventana_height - 50))
-
