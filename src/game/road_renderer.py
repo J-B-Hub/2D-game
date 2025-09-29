@@ -12,28 +12,45 @@ class RoadRenderer:
         self.ventana_width = ventana_width
     
     def dibujar_carretera(self, screen, posicion_en_carretera):
-        """Dibuja la carretera completa con líneas y efectos"""
-        # Fondo de carretera (gris oscuro)
-        rectangulo_carretera = pygame.Rect(0, self.inicio_carretera_y, self.ventana_width, self.altura_carretera)
-        pygame.draw.rect(screen, (64, 64, 64), rectangulo_carretera)
+        """Dibuja la carretera completa con degradados y efectos"""
+        # Degradado vertical simple
+        for i in range(self.altura_carretera):
+            t = i / self.altura_carretera
+            # Interpolar gris oscuro a gris medio
+            c = int(40 + 40 * t)
+            pygame.draw.line(screen, (c, c, c), (0, self.inicio_carretera_y + i), (self.ventana_width, self.inicio_carretera_y + i))
+
+        # Bordes con sombra ligera
+        sombra_color = (20, 20, 20)
+        pygame.draw.rect(screen, sombra_color, (0, self.inicio_carretera_y, self.ventana_width, 4))
+        pygame.draw.rect(screen, sombra_color, (0, self.fin_carretera_y - 4, self.ventana_width, 4))
         
-        # Bordes de carretera (líneas blancas)
-        pygame.draw.line(screen, (255, 255, 255), 
-                        (0, self.inicio_carretera_y), (self.ventana_width, self.inicio_carretera_y), 5)
-        pygame.draw.line(screen, (255, 255, 255), 
-                        (0, self.fin_carretera_y), (self.ventana_width, self.fin_carretera_y), 5)
-        
-        # Línea divisoria de carriles (línea amarilla discontinua)
+        # Bordes externos brillantes
+        pygame.draw.line(screen, (235, 235, 235), (0, self.inicio_carretera_y), (self.ventana_width, self.inicio_carretera_y), 2)
+        pygame.draw.line(screen, (235, 235, 235), (0, self.fin_carretera_y), (self.ventana_width, self.fin_carretera_y), 2)
+
+        # Textura pseudo-asfalto (píxeles esporádicos)
+        import random
+        for _ in range(120):
+            x = random.randint(0, self.ventana_width-1)
+            y = random.randint(self.inicio_carretera_y, self.fin_carretera_y-1)
+            if (x + y + posicion_en_carretera) % 17 == 0:
+                screen.set_at((x, y), (90, 90, 90))
+
+        # Línea central estilizada
         self.dibujar_linea_central(screen, posicion_en_carretera)
     
     def dibujar_linea_central(self, screen, posicion_en_carretera):
-        """Dibuja la línea amarilla discontinua del centro"""
-        centro_carretera = self.inicio_carretera_y + self.altura_carretera // 2
-        
+        """Dibuja la línea amarilla discontinua del centro con brillo"""
+        centro = self.inicio_carretera_y + self.altura_carretera // 2
+        import math
         for x in range(0, self.ventana_width, 40):
-            if (x + posicion_en_carretera) % 80 < 20:  # Líneas discontinuas animadas
-                pygame.draw.line(screen, (255, 255, 0), 
-                               (x, centro_carretera), (x + 20, centro_carretera), 3)
+            fase = (x + posicion_en_carretera) % 80
+            if fase < 28:
+                # Brillo respirando
+                intensidad = 200 + int(55 * math.sin((posicion_en_carretera + x) * 0.01))
+                color = (255, intensidad, 0)
+                pygame.draw.line(screen, color, (x, centro), (x + 26, centro), 4)
     
     def obtener_posicion_carril_superior(self):
         """Devuelve la posición Y del carril superior"""

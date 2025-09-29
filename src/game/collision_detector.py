@@ -6,9 +6,12 @@ class CollisionDetector:
     def __init__(self):
         pass
     
-    def verificar_colisiones(self, carro_x, carro_y, obstaculos_visibles, posicion_en_carretera, estado_juego):
-        """Verifica todas las colisiones y actualiza el estado del juego"""
-        rectangulo_carro = pygame.Rect(carro_x, carro_y, 50, 50)
+    def verificar_colisiones(self, carro_x, carro_y, obstaculos_visibles, posicion_en_carretera, estado_juego,
+                              desplazamiento_vertical=0, esta_saltando=False):
+        """Verifica colisiones. Si está saltando y elevación suficiente, se ignora obstáculo."""
+        y_final = carro_y + desplazamiento_vertical
+        recticulo_altura = 50
+        rectangulo_carro = pygame.Rect(carro_x, y_final, 50, recticulo_altura)
         
         for obstaculo in obstaculos_visibles:
             # Calcular posición del obstáculo en pantalla
@@ -16,6 +19,10 @@ class CollisionDetector:
             rectangulo_obstaculo = pygame.Rect(x_pantalla, obstaculo.y, obstaculo.width, obstaculo.height)
             
             # Verificar colisión
+            # Si salta y pasa por encima (criterio simple: parte baja carro < top obstáculo)
+            # El carro 'salta sobre' el obstáculo si la elevación hace que su borde inferior quede por encima del top del obstáculo + margen
+            if esta_saltando and (y_final + recticulo_altura) < (obstaculo.y + obstaculo.height * 0.4):
+                continue
             if rectangulo_carro.colliderect(rectangulo_obstaculo):
                 estado_juego.agregar_obstaculo_golpeado(obstaculo)
             else:

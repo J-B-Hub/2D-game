@@ -8,48 +8,74 @@ class UIRenderer:
         self.ventana_height = ventana_height
     
     def dibujar_barra_energia(self, screen, energia_actual, energia_maxima):
-        """Dibuja la barra de energía del jugador"""
-        ancho_barra = 200
-        alto_barra = 20
-        x_barra = 10
-        y_barra = 10
-        
-        # Fondo de la barra (rojo)
-        pygame.draw.rect(screen, (255, 0, 0), (x_barra, y_barra, ancho_barra, alto_barra))
-        
-        # Energía actual (verde)
-        ancho_energia = int(ancho_barra * (energia_actual / energia_maxima))
-        pygame.draw.rect(screen, (0, 255, 0), (x_barra, y_barra, ancho_energia, alto_barra))
-        
-        # Borde de la barra
-        pygame.draw.rect(screen, (255, 255, 255), (x_barra, y_barra, ancho_barra, alto_barra), 2)
+        """Dibuja la barra de energía con estilo avanzado"""
+        ancho_barra = 260
+        alto_barra = 26
+        x_barra = 18
+        y_barra = 18
+        ratio = max(0, min(1, energia_actual / energia_maxima))
+        # Panel translúcido
+        panel = pygame.Surface((ancho_barra + 20, alto_barra + 20), pygame.SRCALPHA)
+        panel.fill((15, 15, 25, 130))
+        screen.blit(panel, (x_barra - 10, y_barra - 10))
+        # Fondo barra
+        pygame.draw.rect(screen, (70, 25, 25), (x_barra, y_barra, ancho_barra, alto_barra), border_radius=8)
+        # Gradiente energía
+        gradiente = pygame.Surface((ancho_barra, alto_barra), pygame.SRCALPHA)
+        import math
+        for x in range(ancho_barra):
+            if x/ ancho_barra <= ratio:
+                t = x / max(1, ancho_barra)
+                r = int(255 - 155 * t)
+                g = int(80 + 170 * (1 - abs(t-0.5)*2))
+                b = int(40 + 40 * math.sin(t * 3.14))
+                pygame.draw.line(gradiente, (r, g, b, 230), (x, 0), (x, alto_barra))
+        screen.blit(gradiente, (x_barra, y_barra))
+        # Borde
+        pygame.draw.rect(screen, (230, 230, 240), (x_barra, y_barra, ancho_barra, alto_barra), 2, border_radius=8)
+        # Texto
+        fuente = pygame.font.Font(None, 24)
+        texto = fuente.render(f"Energía {int(energia_actual)}/{int(energia_maxima)}", True, (255,255,255))
+        texto_rect = texto.get_rect(center=(x_barra + ancho_barra//2, y_barra + alto_barra//2))
+        screen.blit(texto, texto_rect)
     
     def dibujar_estadisticas(self, screen, puntuacion, obstaculos_evitados, energia):
-        """Dibuja las estadísticas del juego"""
-        fuente = pygame.font.Font(None, 36)
-        
-        texto_puntuacion = fuente.render(f"Puntuación: {puntuacion}", True, (255, 255, 255))
-        texto_evitados = fuente.render(f"Evitados: {obstaculos_evitados}", True, (255, 255, 255))
-        texto_energia = fuente.render(f"Energía: {int(energia)}", True, (255, 255, 255))
-        
-        screen.blit(texto_puntuacion, (10, 40))
-        screen.blit(texto_evitados, (10, 70))
-        screen.blit(texto_energia, (220, 10))
+        """Dibuja estadísticas con panel sutil"""
+        fuente = pygame.font.Font(None, 28)
+        panel = pygame.Surface((210, 90), pygame.SRCALPHA)
+        panel.fill((20, 25, 40, 140))
+        screen.blit(panel, (20, 60))
+        textos = [
+            (f"Score: {puntuacion}", (255,255,255)),
+            (f"Evitados: {obstaculos_evitados}", (200,220,255)),
+            (f"Energía: {int(energia)}", (255,220,180))
+        ]
+        y = 70
+        for txt, col in textos:
+            surf = fuente.render(txt, True, col)
+            screen.blit(surf, (30, y))
+            y += 28
     
     def dibujar_instrucciones(self, screen):
-        """Dibuja las instrucciones de control"""
-        fuente_pequeña = pygame.font.Font(None, 24)
+        """Panel lateral de instrucciones con iconos ASCII"""
+        fuente_peq = pygame.font.Font(None, 22)
+        panel_w = 250
+        panel_h = 150
+        panel = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
+        panel.fill((15, 20, 35, 150))
+        screen.blit(panel, (self.ventana_width - panel_w - 16, 16))
         instrucciones = [
-            "Flechas/WASD: Mover carro",
-            "SPACE: Agregar obstáculo", 
-            "T: Mostrar/ocultar árbol",
-            "P: Pausar",
+            "↑/↓ o W/S: Carril",
+            "ENTER: Salto",
+            "SPACE: Obstáculo",
+            "T: AVL vivo",
+            "B: Balance AVL",
             "R: Reiniciar"
         ]
-        
-        for i, instruccion in enumerate(instrucciones):
-            texto = fuente_pequeña.render(instruccion, True, (200, 200, 200))
-            screen.blit(texto, (self.ventana_width - 250, 10 + i * 25))
+        for i, instr in enumerate(instrucciones):
+            col = (210, 210, 230)
+            surf = fuente_peq.render(instr, True, col)
+            screen.blit(surf, (self.ventana_width - panel_w, 28 + i*22))
     
     def dibujar_pantalla_pausa(self, screen):
         """Dibuja la pantalla de pausa"""

@@ -24,6 +24,9 @@ class GameState:
         # Control de tiempo
         self.contador_frames = 0
         self.tiempo_inicio = None
+        # Salto (estadísticas)
+        self.altura_actual_salto = 0
+        self.saltos_realizados = 0
     
     def alternar_pausa(self):
         """Alterna entre pausado y no pausado"""

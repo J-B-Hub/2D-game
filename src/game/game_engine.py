@@ -3,7 +3,7 @@ from .input_manager import InputManager
 from .game_state import GameState
 from .collision_detector import CollisionDetector
 from .game_renderer import GameRenderer
-from data_structures.avl_visualizer import AVLVisualizer
+import time
 
 class GameEngineModular:
     """Motor del juego modular - cada responsabilidad en su propia clase"""
@@ -19,7 +19,11 @@ class GameEngineModular:
         self.estado_juego = GameState(configuracion)
         self.collision_detector = CollisionDetector()
         self.game_renderer = GameRenderer(ventana)
-        self.avl_visualizer = AVLVisualizer()  # Instancia del visualizador, aquí creamos el visualizador del árbol
+        # AVL vivo (overlay interno)
+        self.modo_avl_en_vivo = True  # Mostrar overlay AVL desde el inicio
+        # Salto
+        self._ultimo_tiempo = time.time()
+        self.desplazamiento_vertical_actual = 0
         
         # Posición del carrito
         self.carro_x = 50  # Posición fija en pantalla El carrito siempre arranca en el borde izquierdo
@@ -50,11 +54,26 @@ class GameEngineModular:
             self.reiniciar_juego()
         
         if self.input_manager.quiere_mostrar_arbol():
-            print("¡Se presionó la T!")
-            self.game_renderer.ui_renderer.dibujar_visualizacion_arbol(self.gestor_obstaculos.arbol.root)
+            self.modo_avl_en_vivo = not self.modo_avl_en_vivo
+            print("AVL overlay", "ON" if self.modo_avl_en_vivo else "OFF")
         
         if self.input_manager.quiere_agregar_obstaculo():
             self.gestor_obstaculos.crear_obstaculo_aleatorio(self.estado_juego.posicion_en_carretera)
+
+        if self.input_manager.quiere_saltar():
+            self.carro.iniciar_salto(self.carro_y)
+            self.estado_juego.saltos_realizados += 1
+
+        if self.input_manager.quiere_verificar_balance():
+            self.verificar_balance_avl()
+
+        if self.input_manager.quiere_debug():
+            # Contar nodos
+            def _contar(n):
+                if not n: return 0
+                return 1 + _contar(n.left) + _contar(n.right)
+            total = _contar(self.gestor_obstaculos.arbol.root)
+            print(f"[DEBUG] AVL activo={self.modo_avl_en_vivo} nodos={total}")
         
         # Movimiento del carro (solo si el juego está activo)
         if self.estado_juego.esta_activo():
@@ -69,6 +88,13 @@ class GameEngineModular:
         # Mover el carro hacia adelante
         self.estado_juego.actualizar_movimiento()
         
+        # Actualizar salto
+        ahora = time.time()
+        dt = ahora - self._ultimo_tiempo
+        self._ultimo_tiempo = ahora
+        self.desplazamiento_vertical_actual = self.carro.actualizar_salto(dt, self.carro_y)
+        self.estado_juego.altura_actual_salto = -self.desplazamiento_vertical_actual
+
         # Obtener obstáculos visibles
         obstaculos_visibles = self.gestor_obstaculos.obtener_obstaculos_visibles(
             self.estado_juego.posicion_en_carretera
@@ -77,7 +103,9 @@ class GameEngineModular:
         # Verificar colisiones
         self.collision_detector.verificar_colisiones(
             self.carro_x, self.carro_y, obstaculos_visibles,
-            self.estado_juego.posicion_en_carretera, self.estado_juego
+            self.estado_juego.posicion_en_carretera, self.estado_juego,
+            desplazamiento_vertical=self.desplazamiento_vertical_actual,
+            esta_saltando=self.carro.esta_saltando
         )
         
         # Limpiar obstáculos pasados
@@ -91,10 +119,11 @@ class GameEngineModular:
         )
         
         # Delegar todo el renderizado al GameRenderer
+        y_render = self.carro_y + self.desplazamiento_vertical_actual
         self.game_renderer.dibujar_todo(
-            self.estado_juego, self.carro_x, self.carro_y,
+            self.estado_juego, self.carro, self.carro_x, y_render,
             obstaculos_visibles, self.estado_juego.posicion_en_carretera,
-            self.gestor_obstaculos
+            self.gestor_obstaculos, mostrar_avl=self.modo_avl_en_vivo
         )
     
     def reiniciar_juego(self):
@@ -114,24 +143,10 @@ class GameEngineModular:
         reloj = pygame.time.Clock()
         
         while self.estado_juego.juego_corriendo:
-            # Manejar eventos de cierre
-            # Aquí revisamos si el jugador cerró la ventana
-            evento_salir = self.ventana.handle_events()
-            if evento_salir:
-                break
-
-            # ---PARCE ESTO ES LO NUEVO: Captura eventos de teclado para mostrar el árbol---
-            # ---Aquí es donde capturamos la tecla T ---
             for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_t:
-                        print("¡Se presionó la T!")
-                        print("Raíz del árbol:", self.gestor_obstaculos.avl_root)
-                        # Muestra el árbol usando pyplot
-                        # Cuando el jugador presiona la T, mostramos el árbol AVL en una ventana aparte
-                        # Eso es lo que le gusta al profe, que se vea el arbolito bien bonito
-                        self.ui_renderer.dibujar_visualizacion_arbol(self.gestor_obstaculos.avl_root)
-            # ---------------------------------------------------------------
+                if event.type == pygame.QUIT:
+                    self.estado_juego.juego_corriendo = False
+            self.ventana.handle_events()
 
             # Actualizar lógica
             self.actualizar()
@@ -142,3 +157,28 @@ class GameEngineModular:
             # Mantener 60 FPS
             # Pa' que corra a 60 FPS, ni muy rápido ni muy lento
             reloj.tick(60)
+
+    # Nada que cerrar ahora que el overlay es interno
+
+    # --- AVL vivo y balance ---
+    # (El código de hilos para matplotlib fue removido; ahora el árbol se dibuja en overlay)
+
+    def verificar_balance_avl(self):
+        raiz = self.gestor_obstaculos.arbol.root
+        if not raiz:
+            print("AVL vacío")
+            return
+        desbalance = []
+        def dfs(n):
+            if not n: return 0
+            hl = dfs(n.left)
+            hr = dfs(n.right)
+            bal = hl - hr
+            if abs(bal) > 1:
+                desbalance.append((getattr(n,'x_position',None), bal))
+            return max(hl, hr) + 1
+        dfs(raiz)
+        if desbalance:
+            print("Nodos desbalanceados:", desbalance)
+        else:
+            print("AVL OK")

@@ -25,7 +25,12 @@ def main():
     mostrar_pantalla_inicio(ventana)
     
     # Crear objetos principales del juego
-    carro = Car(position=0, energy=configuracion.get('initial_energy', 100))
+    import os
+    ruta_carro = 'assets/car.png'
+    if not os.path.exists(ruta_carro):
+        print("[Aviso] No se encontró assets/car.png, usando rectángulo por defecto.")
+        ruta_carro = None
+    carro = Car(position=0, energy=configuracion.get('initial_energy', 100), sprite_path=ruta_carro)
     gestor_obstaculos = ObstacleManager()
     motor_juego = GameEngineModular(carro, gestor_obstaculos, ventana, configuracion)
     

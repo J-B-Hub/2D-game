@@ -27,6 +27,18 @@ class InputManager:
     def quiere_agregar_obstaculo(self):
         """Verifica si el jugador quiere agregar un obstáculo"""
         return self.teclas_presionadas[pygame.K_SPACE] and self.contador_frames % 30 == 0
+
+    def quiere_saltar(self):
+        """Salto con tecla Enter (RETURN)"""
+        return self.teclas_presionadas[pygame.K_RETURN] and self.contador_frames % 5 == 0
+
+    def quiere_verificar_balance(self):
+        """Tecla B para verificar balance AVL"""
+        return self.teclas_presionadas[pygame.K_b] and self.contador_frames % 15 == 0
+
+    def quiere_debug(self):
+        """Tecla D para debug overlay AVL"""
+        return self.teclas_presionadas[pygame.K_d] and self.contador_frames % 15 == 0
     
     def quiere_mover_arriba(self):
         """Verifica si el jugador quiere mover el carro arriba"""
