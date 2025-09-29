@@ -401,7 +401,7 @@ python3 src/main.py
 ---
 
 
-**Authors:** David Fernando Bedoya Ramirez, Juan Esteban Beallesteros
+**Authors:** David Fernando Bedoya Ramirez, Juan Esteban Ballesteros
 **Institution:** Universidad de Caldas  
 **Course:** Data Structures  
 **Date:** September 2024
